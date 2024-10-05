@@ -36,7 +36,24 @@ bank_df.to_csv('data/bank_data.csv', index=False)
 
 print("Synthetic data generated successfully.")
 
-
+def clean_and_analyze_data(data):
+    # Remove duplicates
+    data.drop_duplicates(inplace=True)
+    
+    # Remove outliers
+    numeric_columns = data.select_dtypes(include=['number']).columns
+    for column in numeric_columns:
+        q1 = data[column].quantile(0.25)
+        q3 = data[column].quantile(0.75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        data = data[(data[column] >= lower_bound) & (data[column] <= upper_bound)]
+    
+    # Analyze data distribution
+    print(data.describe())
+    
+    return data
 
 def train_model(data):
     df = pd.DataFrame(data)
